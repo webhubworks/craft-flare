@@ -1,0 +1,49 @@
+{
+    "name": "webhubworks/craft-flare",
+    "description": "Flare error tracker integration for Craft CMS",
+    "type": "craft-plugin",
+    "license": "mit",
+    "support": {
+        "issues": "https://github.com/webhubworks/craft-flare/issues?state=open",
+        "source": "https://github.com/webhubworks/craft-flare",
+        "docs": "https://github.com/webhubworks/craft-flare",
+        "rss": "https://github.com/webhubworks/craft-flare/releases.atom"
+    },
+    "require": {
+        "php": ">=8.0.2",
+        "craftcms/cms": "^4.5.0",
+        "spatie/ignition": "^1.11.2"
+    },
+    "require-dev": {
+        "craftcms/ecs": "dev-main",
+        "craftcms/phpstan": "dev-main"
+    },
+    "autoload": {
+        "psr-4": {
+            "webhubworks\\flare\\": "src/"
+        }
+    },
+    "extra": {
+        "handle": "craft-flare",
+        "name": "Craft Flare",
+        "developer": "webhub GmbH",
+        "documentationUrl": "https://github.com/webhubworks/craft-flare",
+        "class": "webhubworks\\flare\\CraftFlare",
+        "hasCpSettings": true
+    },
+    "scripts": {
+        "check-cs": "ecs check --ansi",
+        "fix-cs": "ecs check --ansi --fix",
+        "phpstan": "phpstan --memory-limit=1G"
+    },
+    "config": {
+        "sort-packages": true,
+        "platform": {
+            "php": "8.0.2"
+        },
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true,
+            "craftcms/plugin-installer": true
+        }
+    }
+}
