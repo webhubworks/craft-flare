@@ -28,3 +28,14 @@ composer require webhubworks/craft-flare
 # tell Craft to install the plugin
 ./craft plugin/install craft-flare
 ```
+#### Load sooner
+Installs our components during the bootstrap process to get us loaded sooner in case something crashes.
+
+```php
+# config/app.php
+
+'bootstrap' => [
+    ...
+    '\webhubworks\flare\Bootstrap', <-- Add this line
+],
+```

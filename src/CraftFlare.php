@@ -14,6 +14,8 @@ use Throwable;
 use webhubworks\flare\models\Settings;
 use yii\base\Event;
 use yii\web\NotFoundHttpException;
+use craft\events\RegisterUrlRulesEvent;
+use craft\web\UrlManager;
 
 /**
  * Craft Flare plugin
@@ -27,6 +29,8 @@ class CraftFlare extends Plugin
 {
     public string $schemaVersion = '1.0.0';
 
+    private static $flareInstance;
+
     public function createSettingsModel(): Settings
     {
         return new Settings();
@@ -36,63 +40,89 @@ class CraftFlare extends Plugin
     {
         parent::init();
 
-        Event::on(ErrorHandler::class, ErrorHandler::EVENT_BEFORE_HANDLE_EXCEPTION, function (ExceptionEvent $event) {
-
-            if (App::parseBooleanEnv('$FLARE_ENABLED') !== true) {
-                return;
+        Event::on(
+            UrlManager::class,
+            UrlManager::EVENT_REGISTER_SITE_URL_RULES,
+            function (RegisterUrlRulesEvent $event) {
+                $event->rules['craft-flare/errors/trigger-error'] = 'craft-flare/error-trigger/trigger-error';
             }
+        );
 
-            $flareApiToken = App::parseEnv('$FLARE_KEY');
+        $this->setupFlare();
 
-            if (! $flareApiToken) {
-                return;
+        Event::on(
+            ErrorHandler::class,
+            ErrorHandler::EVENT_BEFORE_HANDLE_EXCEPTION,
+            function (ExceptionEvent $event) {
+                self::$flareInstance->report($event->exception);
             }
+        );
+    }
 
-            $flare = Flare::make($flareApiToken);
+    public static function getFlareInstance(): ?Flare
+    {
+        return self::$flareInstance;
+    }
 
-            if ($this->getSettings()->anonymizeIp) {
-                $flare = $flare->anonymizeIp();
-            }
+    private function setupFlare(): void
+    {
+        if (self::$flareInstance) {
+            return;
+        }
 
-            $flare->censorRequestBodyFields($this->getSettings()->getCensorRequestBodyFields())
-                ->reportErrorLevels($this->getSettings()->reportErrorLevels)
-                ->setStage(App::env('FLARE_STAGE') ?? App::env('CRAFT_ENVIRONMENT'))
-                ->filterExceptionsUsing(fn (Throwable $throwable) => ! $throwable instanceof NotFoundHttpException);
+        if (App::parseBooleanEnv('$FLARE_ENABLED') !== true) {
+            return;
+        }
 
-            $flare->context('Craft CMS', [
-                'version' => Craft::$app->getVersion(),
-                'edition' => Craft::$app->getEdition(),
-                'isMultiSite' => Craft::$app->getIsMultiSite(),
-                'isCpRequest' => Craft::$app->getRequest()->getIsCpRequest(),
-                'isSiteRequest' => Craft::$app->getRequest()->getIsSiteRequest(),
-                'isLivePreview' => Craft::$app->getRequest()->getIsLivePreview(),
-                'isActionRequest' => Craft::$app->getRequest()->getIsActionRequest(),
-                'isSecureConnection' => Craft::$app->getRequest()->getIsSecureConnection(),
+        $flareApiToken = App::parseEnv('$FLARE_KEY');
+
+        if (! $flareApiToken) {
+            return;
+        }
+
+        self::$flareInstance = Flare::make($flareApiToken)
+            ->registerFlareHandlers();
+
+        if ($this->getSettings()->anonymizeIp) {
+            self::$flareInstance = self::$flareInstance->anonymizeIp();
+        }
+
+        self::$flareInstance->censorRequestBodyFields($this->getSettings()->getCensorRequestBodyFields())
+            ->reportErrorLevels($this->getSettings()->reportErrorLevels)
+            ->setStage(App::env('FLARE_STAGE') ?? App::env('CRAFT_ENVIRONMENT'))
+            ->filterExceptionsUsing(fn (Throwable $throwable) => ! $throwable instanceof NotFoundHttpException);
+
+        self::$flareInstance->context('Craft CMS', [
+            'version' => Craft::$app->getVersion(),
+            'edition' => Craft::$app->getEdition(),
+            'isMultiSite' => Craft::$app->getIsMultiSite(),
+            'isCpRequest' => Craft::$app->getRequest()->getIsCpRequest(),
+            'isSiteRequest' => Craft::$app->getRequest()->getIsSiteRequest(),
+            'isLivePreview' => Craft::$app->getRequest()->getIsLivePreview(),
+            'isActionRequest' => Craft::$app->getRequest()->getIsActionRequest(),
+            'isSecureConnection' => Craft::$app->getRequest()->getIsSecureConnection(),
+        ]);
+
+        self::$flareInstance->context('Plugins', [
+            'enabled' => array_map(fn (Plugin $plugin) => $plugin->handle, Craft::$app->getPlugins()->getAllPlugins()),
+        ]);
+
+        $user = Craft::$app->getUser()->getIdentity();
+
+        if (is_null($user)) {
+            self::$flareInstance->context('User', 'Guest');
+        }
+
+        if ($user) {
+            $groups = array_map(fn (UserGroup $group) => $group->name, $user->getGroups());
+
+            self::$flareInstance->context('User', [
+                'id' => $user->id,
+                'groups' => $groups,
+                'is_admin' => $user->admin,
+                'language' => $user->preferredLanguage,
+                'locale' => $user->preferredLocale,
             ]);
-
-            $flare->context('Plugins', [
-                'enabled' => array_map(fn (Plugin $plugin) => $plugin->handle, Craft::$app->getPlugins()->getAllPlugins()),
-            ]);
-
-            $user = Craft::$app->getUser()->getIdentity();
-
-            if (is_null($user)) {
-                $flare->context('User', 'Guest');
-            }
-
-            if ($user) {
-                $groups = array_map(fn (UserGroup $group) => $group->name, $user->getGroups());
-
-                $flare->context('User', [
-                    'id' => $user->id,
-                    'groups' => $groups,
-                    'is_admin' => $user->admin,
-                    'language' => $user->preferredLanguage,
-                    'locale' => $user->preferredLocale,
-                ]);
-            }
-
-            $flare->report($event->exception);
-        });
+        }
     }
 }
