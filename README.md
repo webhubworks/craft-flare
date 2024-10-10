@@ -28,7 +28,15 @@ composer require webhubworks/craft-flare
 # tell Craft to install the plugin
 ./craft plugin/install craft-flare
 ```
-#### Load sooner
+#### Add environment variables
+Add these two environment variables to your `.env` file.
+```dotenv
+FLARE_ENABLED=true
+FLARE_KEY="XXX"
+```
+
+## Configuration
+#### Bootstrapping
 Installs our components during the bootstrap process to get us loaded sooner in case something crashes.
 
 ```php
