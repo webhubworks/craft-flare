@@ -100,7 +100,7 @@ class CraftFlare extends Plugin
             'isSiteRequest' => Craft::$app->getRequest()->getIsSiteRequest(),
             'isLivePreview' => Craft::$app->getRequest()->getIsLivePreview(),
             'isActionRequest' => Craft::$app->getRequest()->getIsActionRequest(),
-            'isSecureConnection' => Craft::$app->getRequest()->getIsSecureConnection(),
+            'isSecureConnection' => ! Craft::$app->getRequest()->getIsConsoleRequest() && Craft::$app->getRequest()->getIsSecureConnection(),
         ]);
 
         self::$flareInstance->context('Plugins', [
