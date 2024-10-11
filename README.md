@@ -47,3 +47,9 @@ Installs our components during the bootstrap process to get us loaded sooner in 
     '\webhubworks\flare\Bootstrap', <-- Add this line
 ],
 ```
+
+## Test flare
+In order to quickly test whether everything is set up, you can run the following in the console:
+```bash
+php craft exec/exec "throw new \Exception('This is an exception to test if the integration with Flare works.');"
+```
