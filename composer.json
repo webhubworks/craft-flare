@@ -1,6 +1,7 @@
 {
     "name": "webhubworks/craft-flare",
     "description": "Flare error tracker integration for Craft CMS",
+    "version": "5.0.0",
     "type": "craft-plugin",
     "license": "mit",
     "support": {
@@ -10,9 +11,9 @@
         "rss": "https://github.com/webhubworks/craft-flare/releases.atom"
     },
     "require": {
-        "php": ">=8.0.2",
-        "craftcms/cms": "^4.5.0",
-        "spatie/ignition": "^1.11.2"
+        "php": ">=8.2",
+        "craftcms/cms": "^5.0.0",
+        "spatie/ignition": "^1.15.0"
     },
     "require-dev": {
         "craftcms/ecs": "dev-main",
@@ -39,7 +40,7 @@
     "config": {
         "sort-packages": true,
         "platform": {
-            "php": "8.0.2"
+            "php": "8.2"
         },
         "allow-plugins": {
             "yiisoft/yii2-composer": true,
