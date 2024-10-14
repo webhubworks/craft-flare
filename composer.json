@@ -1,6 +1,7 @@
 {
     "name": "webhubworks/craft-flare",
     "description": "Flare error tracker integration for Craft CMS",
+    "version": "4.0.0",
     "type": "craft-plugin",
     "license": "mit",
     "support": {
