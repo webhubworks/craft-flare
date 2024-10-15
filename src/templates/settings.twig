@@ -1,0 +1,65 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Flare plugin for Craft CMS 4.x
+ *
+ * Flare Settings.twig
+ *
+ * @author    webhub GmbH
+ * @copyright Copyright (c) 2019 webhub GmbH
+ * @link      https://webhub.de
+ * @package   Flare
+ * @since     1.0.0
+ */
+#}
+
+{% import "_includes/forms" as forms %}
+
+{{ forms.lightswitchField({
+    label: "Enabled?"|t('craft-flare'),
+    id: 'flare-is-enabled',
+    name: 'flareIsEnabled',
+    on: settings['flareIsEnabled'],
+    instructions: 'You may want to turn off reporting to Flare.'|t('craft-flare'),
+    errors: settings.getErrors('flareIsEnabled')
+}) }}
+
+{{ forms.autosuggestField({
+    label: "Flare Key"|t('craft-flare'),
+    id: 'flare-key',
+    name: 'flareKey',
+    value: settings['flareKey'],
+    suggestEnvVars: true,
+    instructions: 'After you have created a new project in {link}, you are given a FLARE_KEY. Please insert this here.'|t('craft-flare', {link: '<a href="https://flareapp.io/projects" rel="noopener" target="_blank">Flare</a>'}),
+    errors: settings.getErrors('flareKey')
+}) }}
+
+{{ forms.textField({
+    label: "Error levels to report"|t("craft-flare"),
+    id: "reportErrorLevels",
+    instructions: "Check {link} for available values. Please use {calculatorLink} to calculate the value. Our default is \"E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_WARNING\""|t("craft-flare", {
+        link: '<a href="https://www.php.net/manual/en/errorfunc.constants.php" rel="noopener" target="_blank">the documentation</a>',
+        calculatorLink: '<a href="https://maximivanov.github.io/php-error-reporting-calculator/" rel="noopener" target="_blank">this online calculator</a>',
+    }),
+    value: settings['reportErrorLevels'],
+    name: "reportErrorLevels",
+    errors: settings.getErrors("reportErrorLevels"),
+}) }}
+
+{{ forms.editableTableField({
+    label: "Fields to censor"|t("craft-flare"),
+    id: "censorRequestBodyFields",
+    name: "censorRequestBodyFields",
+    instructions: "Set which request fields should be censored before sending them to Flare."|t("craft-flare"),
+    allowAdd: true,
+    allowDelete: true,
+    addRowLabel: "Add a field"|t("craft-flare"),
+    cols: {
+        fieldName: {
+            heading: "Field Name"|t("craft-flare"),
+            type: "singleline",
+        },
+    },
+    rows: settings.getCensorRequestBodyFields(settings['censorRequestBodyFields']),
+    errors: settings.getErrors('censorRequestBodyFields')
+}) }}
