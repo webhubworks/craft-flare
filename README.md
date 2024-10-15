@@ -28,10 +28,9 @@ composer require webhubworks/craft-flare
 # tell Craft to install the plugin
 ./craft plugin/install craft-flare
 ```
-#### Add environment variables
-Add these two environment variables to your `.env` file.
+#### Add environment variables (optional)
+You may add this environment variable to your `.env` file if you do not want to store it in the settings UI:
 ```dotenv
-FLARE_ENABLED=true
 FLARE_KEY="XXX"
 ```
 
