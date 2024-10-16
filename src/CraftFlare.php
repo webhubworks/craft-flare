@@ -6,8 +6,10 @@ use Craft;
 use craft\base\Model;
 use craft\base\Plugin;
 use craft\events\ExceptionEvent;
+use craft\events\PluginEvent;
 use craft\helpers\App;
 use craft\models\UserGroup;
+use craft\services\Plugins;
 use craft\web\ErrorHandler;
 use Spatie\FlareClient\Flare;
 use Throwable;
@@ -54,8 +56,36 @@ class CraftFlare extends Plugin
             ErrorHandler::class,
             ErrorHandler::EVENT_BEFORE_HANDLE_EXCEPTION,
             function (ExceptionEvent $event) {
-                self::$flareInstance->report($event->exception);
+                self::$flareInstance?->report($event->exception);
             }
+        );
+
+        /**
+         * TODO:
+         * Is this the only way to parse/reformat the editableTableField values (array of arrays)
+         * before saving? 🫠
+         */
+        Event::on(
+            Plugins::class,
+            Plugins::EVENT_BEFORE_SAVE_PLUGIN_SETTINGS,
+            function (PluginEvent $event) {
+                if($event->plugin->id !== 'craft-flare') {
+                    return;
+                }
+
+                $settings = $event->plugin->getSettings();
+                $settings->censorRequestBodyFields = $settings->setCensorRequestBodyFields($event->plugin->getSettings()->censorRequestBodyFields);
+            }
+        );
+    }
+
+    protected function settingsHtml(): ?string
+    {
+        return Craft::$app->view->renderTemplate(
+            'craft-flare/settings',
+            [
+                'settings' => $this->getSettings(),
+            ]
         );
     }
 
@@ -70,25 +100,26 @@ class CraftFlare extends Plugin
             return;
         }
 
-        if (App::parseBooleanEnv('$FLARE_ENABLED') !== true) {
+        if ($this->getSettings()->isEnabled !== true) {
             return;
         }
 
-        $flareApiToken = App::parseEnv('$FLARE_KEY');
+        $flareApiToken = App::parseEnv($this->getSettings()->flareKey);
 
         if (! $flareApiToken) {
             return;
         }
 
-        self::$flareInstance = Flare::make($flareApiToken)
-            ->registerFlareHandlers();
+        self::$flareInstance = Flare::make($flareApiToken)->registerFlareHandlers();
 
         if ($this->getSettings()->anonymizeIp) {
             self::$flareInstance = self::$flareInstance->anonymizeIp();
         }
 
-        self::$flareInstance->censorRequestBodyFields($this->getSettings()->getCensorRequestBodyFields())
+        self::$flareInstance
+            ->censorRequestBodyFields($this->getSettings()->censorRequestBodyFields)
             ->reportErrorLevels($this->getSettings()->reportErrorLevels)
+            // TODO: Should we add the stage to the settings?
             ->setStage(App::env('FLARE_STAGE') ?? App::env('CRAFT_ENVIRONMENT'))
             ->filterExceptionsUsing(fn (Throwable $throwable) => ! $throwable instanceof NotFoundHttpException);
 
