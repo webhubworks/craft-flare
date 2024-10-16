@@ -8,7 +8,7 @@ class Settings extends Model
 {
     public string $flareKey = '';
 
-    public bool $flareIsEnabled = true;
+    public bool $isEnabled = true;
 
     public bool $anonymizeIp = true;
 
@@ -43,9 +43,9 @@ class Settings extends Model
     public function defineRules(): array
     {
         return [
-            [['anonymizeIp', 'reportErrorLevels'], 'required'],
-            ['anonymizeIp', 'boolean'],
-            ['reportErrorLevels', 'integer'],
+            [['flareKey', 'isEnabled', 'anonymizeIp', 'censorRequestBodyFields'], 'required'],
+            ['isEnabled', 'boolean'],
+            ['isEnabled', 'boolean'],
             ['censorRequestBodyFields', 'safe'],
         ];
     }

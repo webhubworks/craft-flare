@@ -100,7 +100,7 @@ class CraftFlare extends Plugin
             return;
         }
 
-        if (App::parseBooleanEnv($this->getSettings()->flareIsEnabled) !== true) {
+        if ($this->getSettings()->isEnabled !== true) {
             return;
         }
 
@@ -110,15 +110,16 @@ class CraftFlare extends Plugin
             return;
         }
 
-        self::$flareInstance = Flare::make($flareApiToken)
-            ->registerFlareHandlers();
+        self::$flareInstance = Flare::make($flareApiToken)->registerFlareHandlers();
 
         if ($this->getSettings()->anonymizeIp) {
             self::$flareInstance = self::$flareInstance->anonymizeIp();
         }
 
-        self::$flareInstance->censorRequestBodyFields($this->getSettings()->censorRequestBodyFields)
+        self::$flareInstance
+            ->censorRequestBodyFields($this->getSettings()->censorRequestBodyFields)
             ->reportErrorLevels($this->getSettings()->reportErrorLevels)
+            // TODO: Should we add the stage to the settings?
             ->setStage(App::env('FLARE_STAGE') ?? App::env('CRAFT_ENVIRONMENT'))
             ->filterExceptionsUsing(fn (Throwable $throwable) => ! $throwable instanceof NotFoundHttpException);
 

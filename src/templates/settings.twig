@@ -13,15 +13,20 @@
  */
 #}
 
+{% set config = craft.app.config.getConfigFromFile('craft-flare') %}
+
 {% import "_includes/forms" as forms %}
+{% from 'craft-flare/_macros' import configWarning %}
 
 {{ forms.lightswitchField({
     label: "Enabled?"|t('craft-flare'),
-    id: 'flare-is-enabled',
-    name: 'flareIsEnabled',
-    on: settings['flareIsEnabled'],
+    id: 'is-enabled',
+    name: 'isEnabled',
+    on: settings['isEnabled'],
     instructions: 'You may want to turn off reporting to Flare.'|t('craft-flare'),
-    errors: settings.getErrors('flareIsEnabled')
+    errors: settings.getErrors('isEnabled'),
+    warning: (config.isEnabled is defined ? configWarning('isEnabled')),
+    disabled: config.isEnabled is defined,
 }) }}
 
 {{ forms.autosuggestField({
@@ -31,10 +36,23 @@
     value: settings['flareKey'],
     suggestEnvVars: true,
     instructions: 'After you have created a new project in {link}, you are given a FLARE_KEY. Please insert this here.'|t('craft-flare', {link: '<a href="https://flareapp.io/projects" rel="noopener" target="_blank">Flare</a>'}),
-    errors: settings.getErrors('flareKey')
+    errors: settings.getErrors('flareKey'),
+    warning: (config.flareKey is defined ? configWarning('flareKey')),
+    disabled: config.flareKey is defined,
 }) }}
 
-{{ forms.textField({
+{{ forms.lightswitchField({
+    label: "Anonymize IP?"|t('craft-flare'),
+    id: 'anonymize-ip',
+    name: 'anonymizeIp',
+    on: settings['anonymizeIp'],
+    instructions: 'You may want to turn off reporting to Flare.'|t('craft-flare'),
+    errors: settings.getErrors('anonymizeIp'),
+    warning: (config.isEnabled is defined ? configWarning('anonymizeIp')),
+    disabled: config.anonymizeIp is defined,
+}) }}
+
+{#{{ forms.textField({
     label: "Error levels to report"|t("craft-flare"),
     id: "reportErrorLevels",
     instructions: "Check {link} for available values. Please use {calculatorLink} to calculate the value. Our default is \"E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_WARNING\""|t("craft-flare", {
@@ -44,7 +62,7 @@
     value: settings['reportErrorLevels'],
     name: "reportErrorLevels",
     errors: settings.getErrors("reportErrorLevels"),
-}) }}
+}) }}#}
 
 {{ forms.editableTableField({
     label: "Fields to censor"|t("craft-flare"),
@@ -53,6 +71,7 @@
     instructions: "Set which request fields should be censored before sending them to Flare."|t("craft-flare"),
     allowAdd: true,
     allowDelete: true,
+    static: config.censorRequestBodyFields is defined,
     addRowLabel: "Add a field"|t("craft-flare"),
     cols: {
         fieldName: {
@@ -61,5 +80,6 @@
         },
     },
     rows: settings.getCensorRequestBodyFields(settings['censorRequestBodyFields']),
-    errors: settings.getErrors('censorRequestBodyFields')
+    errors: settings.getErrors('censorRequestBodyFields'),
+    warning: (config.censorRequestBodyFields is defined ? configWarning('censorRequestBodyFields')),
 }) }}
