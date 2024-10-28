@@ -4,6 +4,12 @@
     "version": "1.0.0",
     "type": "craft-plugin",
     "license": "mit",
+    "authors": [
+        {
+            "name": "webhub GmbH",
+            "homepage": "https://webhub.de"
+        }
+    ],
     "support": {
         "issues": "https://github.com/webhubworks/craft-flare/issues?state=open",
         "source": "https://github.com/webhubworks/craft-flare",
