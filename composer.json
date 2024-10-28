@@ -13,7 +13,7 @@
     "require": {
         "php": ">=8.0.2",
         "craftcms/cms": "^4.5.0|^5.0.0",
-        "spatie/ignition": "^1.11.2"
+        "spatie/flare-client-php": "1.8.0"
     },
     "require-dev": {
         "craftcms/ecs": "dev-main",
