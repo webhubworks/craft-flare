@@ -19,7 +19,7 @@
 {% from 'craft-flare/_macros' import configWarning %}
 
 {{ forms.lightswitchField({
-    label: "Enabled?"|t('craft-flare'),
+    label: "Enabled"|t('craft-flare'),
     id: 'is-enabled',
     name: 'isEnabled',
     on: settings['isEnabled'],
@@ -30,12 +30,12 @@
 }) }}
 
 {{ forms.autosuggestField({
-    label: "Flare Key"|t('craft-flare'),
+    label: "Flare API Key"|t('craft-flare'),
     id: 'flare-key',
     name: 'flareKey',
     value: settings['flareKey'],
     suggestEnvVars: true,
-    instructions: 'After you have created a new project in {link}, you are given a FLARE_KEY. Please insert this here.'|t('craft-flare', {link: '<a href="https://flareapp.io/projects" rel="noopener" target="_blank">Flare</a>'}),
+    instructions: 'After you have created a new project in {link}, you are given a project specific Flare API key. Please insert this here.'|t('craft-flare', {link: '<a href="https://flareapp.io/projects" rel="noopener" target="_blank">Flare</a>'}),
     errors: settings.getErrors('flareKey'),
     warning: (config.flareKey is defined ? configWarning('flareKey')),
     disabled: config.flareKey is defined,
@@ -46,7 +46,7 @@
 <hr>
 
 {{ forms.lightswitchField({
-    label: "Anonymize IP?"|t('craft-flare'),
+    label: "Anonymize IP"|t('craft-flare'),
     id: 'anonymize-ip',
     name: 'anonymizeIp',
     on: settings['anonymizeIp'],
