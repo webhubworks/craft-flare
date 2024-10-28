@@ -30,7 +30,7 @@ To install the plugin, follow these instructions.
 
 ## Configuration
 
-Go to the settings page and paste your project specific Flare API key. (You can find the key in your project settings: https://flareapp.io/projects.)
+Create a new PHP project in Flare or go to the settings page of your existing Flare project and copy your project specific Flare API key. Paste this key into the Craft Flare settings.
 
 #### Bootstrapping (optional)
 To load Flare as early as possible during the application boot up add the following line into your `config/app.php` file:
