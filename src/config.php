@@ -1,6 +1,6 @@
 <?php
 /**
- * Flare plugin for Craft CMS 4.x
+ * Flare plugin for Craft CMS 4.x & 5.x
  *
  * Integrate Flare into Craft CMS.
  *

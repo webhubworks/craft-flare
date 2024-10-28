@@ -58,7 +58,7 @@ class CraftFlare extends Plugin
                 self::$flareInstance?->report($event->exception);
             }
         );
-        
+
         Event::on(
             Plugins::class,
             Plugins::EVENT_BEFORE_SAVE_PLUGIN_SETTINGS,
