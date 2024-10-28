@@ -1,54 +1,51 @@
-# Craft Flare
+# Craft Flare plugin for Craft CMS 4.x and 5.x
 
 Flare error tracker integration for Craft CMS
 
 ## Requirements
 
-This plugin requires Craft CMS 4.5.0 or later, and PHP 8.0.2 or later.
+This plugin requires Craft CMS 4.5.0/5.0.0 or later, and PHP 8.0.2 or later.
+
+You'll also have to provide an Flare API key.
+
+🙏 You can create a Flare account using our affiliate link: [Flare](flareapp.io/?via=webhub) This helps a lot supporting the maintenance of this plugin.
 
 ## Installation
 
-You can install this plugin from the Plugin Store or with Composer.
+To install the plugin, follow these instructions.
 
-#### From the Plugin Store
+1. Open your terminal and go to your Craft project:
 
-Go to the Plugin Store in your project’s Control Panel and search for “Craft Flare”. Then press “Install”.
+        cd /path/to/project
 
-#### With Composer
+2. Then tell Composer to load the plugin.
 
-Open your terminal and run the following commands:
+        composer require webhubworks/craft-flare
 
-```bash
-# go to the project directory
-cd /path/to/my-project.test
+3. Install and enable the plugin:
 
-# tell Composer to load the plugin
-composer require webhubworks/craft-flare
+        ./craft plugin/install craft-flare && ./craft plugin/enable craft-flare
 
-# tell Craft to install the plugin
-./craft plugin/install craft-flare
-```
-#### Add environment variables (optional)
-You may add this environment variable to your `.env` file if you do not want to store it in the settings UI:
-```dotenv
-FLARE_KEY="XXX"
-```
+   OR: In the Control Panel, go to Settings → Plugins and click the “Install” button for Craft Flare.
 
 ## Configuration
-#### Bootstrapping
-Installs our components during the bootstrap process to get us loaded sooner in case something crashes.
+
+Go to the settings page and paste your project specific Flare API key. (You can find the key in your project settings: https://flareapp.io/projects.)
+
+#### Bootstrapping (optional)
+To load Flare as early as possible during the application boot up add the following line into your `config/app.php` file:
 
 ```php
 # config/app.php
 
 'bootstrap' => [
     ...
-    '\webhubworks\flare\Bootstrap', <-- Add this line
+    '\webhubworks\flare\Bootstrap', // <-- Add this line
 ],
 ```
 
 ## Test flare
-In order to quickly test whether everything is set up, you can run the following in the console:
+In order to quickly test whether everything is set up, you can run the following command in your console:
 ```bash
 php craft exec/exec "throw new \Exception('This is an exception to test if the integration with Flare works.');"
 ```
