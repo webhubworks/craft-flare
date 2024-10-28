@@ -10,7 +10,7 @@ This plugin requires Craft CMS 4.5.0/5.0.0 or later, and PHP 8.0.2 or later.
 
 You'll also have to provide an Flare API key.
 
-🙏 You can create a Flare account using our affiliate link: [Flare](flareapp.io/?via=webhub) This helps a lot supporting the maintenance of this plugin.
+🙏 You can create a Flare account using our affiliate link: [Flare](https://flareapp.io/?via=webhub) This helps a lot supporting the maintenance of this plugin.
 
 ## Installation
 
