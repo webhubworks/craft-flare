@@ -2,6 +2,8 @@
 
 Flare error tracker integration for Craft CMS
 
+![Flare overview](https://raw.githubusercontent.com/webhubworks/craft-flare/refs/heads/main/craft-flare-overview.png)
+
 ## Requirements
 
 This plugin requires Craft CMS 4.5.0/5.0.0 or later, and PHP 8.0.2 or later.
