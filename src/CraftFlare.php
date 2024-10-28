@@ -3,21 +3,20 @@
 namespace webhubworks\flare;
 
 use Craft;
-use craft\base\Model;
 use craft\base\Plugin;
 use craft\events\ExceptionEvent;
 use craft\events\PluginEvent;
+use craft\events\RegisterUrlRulesEvent;
 use craft\helpers\App;
 use craft\models\UserGroup;
 use craft\services\Plugins;
 use craft\web\ErrorHandler;
+use craft\web\UrlManager;
 use Spatie\FlareClient\Flare;
 use Throwable;
 use webhubworks\flare\models\Settings;
 use yii\base\Event;
 use yii\web\NotFoundHttpException;
-use craft\events\RegisterUrlRulesEvent;
-use craft\web\UrlManager;
 
 /**
  * Craft Flare plugin
@@ -59,12 +58,7 @@ class CraftFlare extends Plugin
                 self::$flareInstance?->report($event->exception);
             }
         );
-
-        /**
-         * TODO:
-         * Is this the only way to parse/reformat the editableTableField values (array of arrays)
-         * before saving? 🫠
-         */
+        
         Event::on(
             Plugins::class,
             Plugins::EVENT_BEFORE_SAVE_PLUGIN_SETTINGS,
@@ -119,8 +113,7 @@ class CraftFlare extends Plugin
         self::$flareInstance
             ->censorRequestBodyFields($this->getSettings()->censorRequestBodyFields)
             ->reportErrorLevels($this->getSettings()->reportErrorLevels)
-            // TODO: Should we add the stage to the settings?
-            ->setStage(App::env('FLARE_STAGE') ?? App::env('CRAFT_ENVIRONMENT'))
+            ->setStage(App::env('CRAFT_ENVIRONMENT'))
             ->filterExceptionsUsing(fn (Throwable $throwable) => ! $throwable instanceof NotFoundHttpException);
 
         self::$flareInstance->context('Craft CMS', [
