@@ -18,15 +18,12 @@ To install the plugin, follow these instructions.
 
         cd /path/to/project
 
-2. Then tell Composer to load the plugin.
+2. Then tell Composer to load the plugin and install it:
 
-        composer require webhubworks/craft-flare
-
-3. Install and enable the plugin:
-
-        ./craft plugin/install craft-flare && ./craft plugin/enable craft-flare
-
-   OR: In the Control Panel, go to Settings → Plugins and click the “Install” button for Craft Flare.
+        composer require "webhubworks/craft-flare" -w && php craft plugin/install craft-flare
+   
+        # or with DDEV
+        ddev composer require "webhubworks/craft-flare" -w && ddev craft plugin/install craft-flare
 
 ## Configuration
 
