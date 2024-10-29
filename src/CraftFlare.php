@@ -51,6 +51,10 @@ class CraftFlare extends Plugin
 
         $this->setupFlare();
 
+        Craft::$app->onInit(function () {
+            $this->addUserContext();
+        });
+
         Event::on(
             ErrorHandler::class,
             ErrorHandler::EVENT_BEFORE_HANDLE_EXCEPTION,
@@ -63,7 +67,7 @@ class CraftFlare extends Plugin
             Plugins::class,
             Plugins::EVENT_BEFORE_SAVE_PLUGIN_SETTINGS,
             function (PluginEvent $event) {
-                if($event->plugin->id !== 'craft-flare') {
+                if ($event->plugin->id !== 'craft-flare') {
                     return;
                 }
 
@@ -88,6 +92,13 @@ class CraftFlare extends Plugin
         return self::$flareInstance;
     }
 
+    /**
+     * Watch out: Craft or plugins might not be fully initialized at this point.
+     * See: https://craftcms.com/docs/5.x/extend/plugin-guide.html#initialization
+     *
+     * @return void
+     * @throws \yii\base\Exception
+     */
     private function setupFlare(): void
     {
         if (self::$flareInstance) {
@@ -100,7 +111,7 @@ class CraftFlare extends Plugin
 
         $flareApiToken = App::parseEnv($this->getSettings()->flareKey);
 
-        if (! $flareApiToken) {
+        if (!$flareApiToken) {
             return;
         }
 
@@ -114,7 +125,7 @@ class CraftFlare extends Plugin
             ->censorRequestBodyFields($this->getSettings()->censorRequestBodyFields)
             ->reportErrorLevels($this->getSettings()->reportErrorLevels)
             ->setStage(App::env('CRAFT_ENVIRONMENT'))
-            ->filterExceptionsUsing(fn (Throwable $throwable) => ! $throwable instanceof NotFoundHttpException);
+            ->filterExceptionsUsing(fn(Throwable $throwable) => !$throwable instanceof NotFoundHttpException);
 
         self::$flareInstance->context('Craft CMS', [
             'version' => Craft::$app->getVersion(),
@@ -124,12 +135,22 @@ class CraftFlare extends Plugin
             'isSiteRequest' => Craft::$app->getRequest()->getIsSiteRequest(),
             'isLivePreview' => Craft::$app->getRequest()->getIsLivePreview(),
             'isActionRequest' => Craft::$app->getRequest()->getIsActionRequest(),
-            'isSecureConnection' => ! Craft::$app->getRequest()->getIsConsoleRequest() && Craft::$app->getRequest()->getIsSecureConnection(),
+            'isSecureConnection' => !Craft::$app->getRequest()->getIsConsoleRequest() && Craft::$app->getRequest()->getIsSecureConnection(),
         ]);
 
         self::$flareInstance->context('Plugins', [
-            'enabled' => array_map(fn (Plugin $plugin) => $plugin->handle, Craft::$app->getPlugins()->getAllPlugins()),
+            'enabled' => array_map(fn(Plugin $plugin) => $plugin->handle, Craft::$app->getPlugins()->getAllPlugins()),
         ]);
+
+        self::$flareInstance->context('User', 'Craft not initialized yet');
+    }
+
+    public function addUserContext(): void
+    {
+        if (Craft::$app->getRequest()->getIsConsoleRequest()) {
+            self::$flareInstance->context('User', 'Console');
+            return;
+        }
 
         $user = Craft::$app->getUser()->getIdentity();
 
@@ -138,7 +159,7 @@ class CraftFlare extends Plugin
         }
 
         if ($user) {
-            $groups = array_map(fn (UserGroup $group) => $group->name, $user->getGroups());
+            $groups = array_map(fn(UserGroup $group) => $group->name, $user->getGroups());
 
             self::$flareInstance->context('User', [
                 'id' => $user->id,
