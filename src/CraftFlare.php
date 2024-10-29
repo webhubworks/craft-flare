@@ -30,7 +30,7 @@ class CraftFlare extends Plugin
 {
     public string $schemaVersion = '1.0.0';
 
-    private static $flareInstance;
+    private static $flareInstance = null;
 
     public function createSettingsModel(): Settings
     {
@@ -147,6 +147,10 @@ class CraftFlare extends Plugin
 
     public function addUserContext(): void
     {
+        if(self::getFlareInstance() === null) {
+            return;
+        }
+
         if (Craft::$app->getRequest()->getIsConsoleRequest()) {
             self::$flareInstance->context('User', 'Console');
             return;
