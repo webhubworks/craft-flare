@@ -1,5 +1,9 @@
 # Release Notes for Craft Flare
 
+## 1.0.5 - 2024-11-07
+### Fixed
+- IP addresses in the request header were not correctly censored
+
 ## 1.0.4 - 2024-11-07
 ### Changed
 - Refactoring to use a FlareService and gather system data after the Craft app is initialized 

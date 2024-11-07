@@ -10,16 +10,16 @@ class RemoveAllRequestIp
     {
         $context = $report->allContext();
 
-        $context['request']['x-forwarded-for'] = null;
-        $context['request']['x-real-ip'] = null;
-        $context['request']['x-request-ip'] = null;
-        $context['request']['x-client-ip'] = null;
-        $context['request']['cf-connecting-ip'] = null;
-        $context['request']['fastly-client-ip'] = null;
-        $context['request']['true-client-ip'] = null;
-        $context['request']['forwarded'] = null;
-        $context['request']['proxy-client-ip'] = null;
-        $context['request']['wl-proxy-client-ip'] = null;
+        $context['headers']['x-forwarded-for'] = '<CENSORED>';
+        $context['headers']['x-real-ip'] = '<CENSORED>';
+        $context['headers']['x-request-ip'] = '<CENSORED>';
+        $context['headers']['x-client-ip'] = '<CENSORED>';
+        $context['headers']['cf-connecting-ip'] = '<CENSORED>';
+        $context['headers']['fastly-client-ip'] = '<CENSORED>';
+        $context['headers']['true-client-ip'] = '<CENSORED>';
+        $context['headers']['forwarded'] = '<CENSORED>';
+        $context['headers']['proxy-client-ip'] = '<CENSORED>';
+        $context['headers']['wl-proxy-client-ip'] = '<CENSORED>';
 
         $report->userProvidedContext($context);
 
