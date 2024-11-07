@@ -10,7 +10,6 @@ use craft\events\RegisterUrlRulesEvent;
 use craft\services\Plugins;
 use craft\web\ErrorHandler;
 use craft\web\UrlManager;
-use Spatie\FlareClient\Flare;
 use webhubworks\flare\models\Settings;
 use webhubworks\flare\services\FlareService;
 use yii\base\Event;
@@ -49,6 +48,21 @@ class CraftFlare extends Plugin
             }
         );
 
+        $this->registerOtherEvents();
+    }
+
+    protected function settingsHtml(): ?string
+    {
+        return Craft::$app->view->renderTemplate(
+            'craft-flare/settings',
+            [
+                'settings' => $this->getSettings(),
+            ]
+        );
+    }
+
+    private function registerOtherEvents(): void
+    {
         Event::on(
             Plugins::class,
             Plugins::EVENT_BEFORE_SAVE_PLUGIN_SETTINGS,
@@ -68,16 +82,6 @@ class CraftFlare extends Plugin
             function (RegisterUrlRulesEvent $event) {
                 $event->rules['craft-flare/errors/trigger-error'] = 'craft-flare/error-trigger/trigger-error';
             }
-        );
-    }
-
-    protected function settingsHtml(): ?string
-    {
-        return Craft::$app->view->renderTemplate(
-            'craft-flare/settings',
-            [
-                'settings' => $this->getSettings(),
-            ]
         );
     }
 }
