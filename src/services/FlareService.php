@@ -36,8 +36,8 @@ class FlareService extends Component
         $this->client = Flare::make($flareApiToken)->registerFlareHandlers();
 
         if ($settings->anonymizeIp) {
-            $this->client = $this->client->anonymizeIp();
-            $this->client = $this->client->registerMiddleware(RemoveAllRequestIp::class);
+            $this->client->anonymizeIp();
+            $this->client->registerMiddleware(RemoveAllRequestIp::class);
         }
 
         $this->client
