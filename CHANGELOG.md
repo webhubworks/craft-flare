@@ -1,5 +1,9 @@
 # Release Notes for Craft Flare
 
+## 1.0.4 - 2024-11-07
+### Changed
+- Refactoring to use a FlareService and gather system data after the Craft app is initialized 
+
 ## 1.0.3 - 2024-10-24
 ### Fixed
 - Catching non-initialized Flare instance 
