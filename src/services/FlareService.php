@@ -66,6 +66,15 @@ class FlareService extends Component
 
     }
 
+    public function report(Throwable $throwable): void
+    {
+        if($this->client === null) {
+            return;
+        }
+
+        $this->client->report($throwable);
+    }
+
     private function addPluginContext(): void
     {
         if($this->client === null) {
