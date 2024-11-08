@@ -1,5 +1,9 @@
 # Release Notes for Craft Flare
 
+## 1.0.6 - 2024-11-08
+### Added
+- Ability to access the Flare instance via `CraftFlare::getFlareInstance()`
+
 ## 1.0.5 - 2024-11-07
 ### Fixed
 - IP addresses in the request header were not correctly censored

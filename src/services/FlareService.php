@@ -16,7 +16,10 @@ use yii\web\NotFoundHttpException;
 class FlareService extends Component
 {
     private ?Flare $client = null;
-    
+
+    /**
+     * @throws Throwable
+     */
     public function __construct()
     {
         parent::__construct();
@@ -63,16 +66,11 @@ class FlareService extends Component
             $this->addPluginContext();
             $this->addUserContext();
         });
-
     }
 
-    public function report(Throwable $throwable): void
+    public function getClient(): Flare
     {
-        if($this->client === null) {
-            return;
-        }
-
-        $this->client->report($throwable);
+       return $this->client;
     }
 
     private function addPluginContext(): void

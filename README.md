@@ -32,15 +32,29 @@ To install the plugin, follow these instructions.
 Create a new PHP project in Flare or go to the settings page of your existing Flare project and copy your project specific Flare API key. Paste this key into the Craft Flare settings.
 
 #### Bootstrapping (optional)
-To load Flare as early as possible during the application boot up add the following line into your `config/app.php` file:
+To load Flare as early as possible during the application boot up add the following line as the first entry of `bootstrap` into your `config/app.php` file:
 
 ```php
 # config/app.php
 
 'bootstrap' => [
-    ...
-    '\webhubworks\flare\Bootstrap', // <-- Add this line
+    '\webhubworks\flare\Bootstrap', // <-- Add this line as the first entry
+    // other bootstrap entries
 ],
+```
+
+## Usage
+In general, you do not need to do anything. This plugin will report exceptions to Flare automatically.
+In case you want to report manually or e.g. add context/glow, you can use `CraftFlare::getFlareInstance()`.
+Example:
+
+```php
+CraftFlare::getFlareInstance()
+   ->context('Order', [
+         'price' => $order->price,
+         'currency' => $order->currency,
+    ])
+   ->report(new \Exception('Test exception'));
 ```
 
 ## Test flare

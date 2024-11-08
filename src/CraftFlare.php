@@ -10,6 +10,7 @@ use craft\events\RegisterUrlRulesEvent;
 use craft\services\Plugins;
 use craft\web\ErrorHandler;
 use craft\web\UrlManager;
+use Spatie\FlareClient\Flare;
 use webhubworks\flare\models\Settings;
 use webhubworks\flare\services\FlareService;
 use yii\base\Event;
@@ -44,7 +45,7 @@ class CraftFlare extends Plugin
             ErrorHandler::class,
             ErrorHandler::EVENT_BEFORE_HANDLE_EXCEPTION,
             function (ExceptionEvent $event) {
-                $this->flare?->report($event->exception);
+                $this->flare->getClient()->report($event->exception);
             }
         );
 
@@ -83,5 +84,14 @@ class CraftFlare extends Plugin
                 $event->rules['craft-flare/errors/trigger-error'] = 'craft-flare/error-trigger/trigger-error';
             }
         );
+    }
+
+    public static function getFlareInstance(): ?Flare
+    {
+        if(self::getInstance() === null){
+            return null;
+        }
+
+        return self::getInstance()->flare->getClient();
     }
 }
