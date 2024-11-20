@@ -56,6 +56,17 @@
     disabled: config.anonymizeIp is defined,
 }) }}
 
+{{ forms.lightswitchField({
+    label: "Censor Queries"|t('craft-flare'),
+    id: 'censor-queries',
+    name: 'censorQueries',
+    on: settings['censorQueries'],
+    instructions: 'With this setting enabled, only SQL exceptions messages will be reported but no queries.'|t('craft-flare'),
+    errors: settings.getErrors('censorQueries'),
+    warning: (config.isEnabled is defined ? configWarning('censorQueries')),
+    disabled: config.censorQueries is defined,
+}) }}
+
 {#{{ forms.textField({
     label: "Error levels to report"|t("craft-flare"),
     id: "reportErrorLevels",

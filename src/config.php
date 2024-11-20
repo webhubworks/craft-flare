@@ -33,6 +33,9 @@ return [
         // With this setting enabled, the IP address of the request will be anonymized before being sent to Flare.
         //'anonymizeIp' => true,
 
+        // With this setting enabled, only SQL exceptions messages will be reported but no queries.
+        //'censorQueries' => true,
+
         // With this setting you may define which request fields should be censored before being sent to Flare.
         //'censorRequestBodyFields' => [
         //    'CRAFT_CSRF_TOKEN',

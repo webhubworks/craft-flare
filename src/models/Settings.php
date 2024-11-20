@@ -12,6 +12,8 @@ class Settings extends Model
 
     public bool $anonymizeIp = true;
 
+    public bool $censorQueries = true;
+
     public array $censorRequestBodyFields = [
         'CRAFT_CSRF_TOKEN',
         'password',
@@ -43,7 +45,7 @@ class Settings extends Model
     public function defineRules(): array
     {
         return [
-            [['flareKey', 'isEnabled', 'anonymizeIp', 'censorRequestBodyFields'], 'required'],
+            [['flareKey', 'isEnabled', 'anonymizeIp', 'censorQueries', 'censorRequestBodyFields'], 'required'],
             ['isEnabled', 'boolean'],
             ['isEnabled', 'boolean'],
             ['censorRequestBodyFields', 'safe'],

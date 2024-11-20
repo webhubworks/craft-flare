@@ -10,6 +10,7 @@ use craft\models\UserGroup;
 use Spatie\FlareClient\Flare;
 use Throwable;
 use webhubworks\flare\CraftFlare;
+use webhubworks\flare\middleware\CensorQueriesMiddleware;
 use webhubworks\flare\middleware\RemoveAllRequestIp;
 use yii\web\NotFoundHttpException;
 
@@ -41,6 +42,10 @@ class FlareService extends Component
         if ($settings->anonymizeIp) {
             $this->client->anonymizeIp();
             $this->client->registerMiddleware(RemoveAllRequestIp::class);
+        }
+
+        if ($settings->censorQueries) {
+            $this->client->registerMiddleware(CensorQueriesMiddleware::class);
         }
 
         $this->client
