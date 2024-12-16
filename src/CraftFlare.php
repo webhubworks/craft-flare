@@ -45,7 +45,7 @@ class CraftFlare extends Plugin
             ErrorHandler::class,
             ErrorHandler::EVENT_BEFORE_HANDLE_EXCEPTION,
             function (ExceptionEvent $event) {
-                $this->flare->getClient()->report($event->exception);
+                $this->flare->getClient()?->report($event->exception);
             }
         );
 

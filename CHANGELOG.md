@@ -1,5 +1,13 @@
 # Release Notes for Craft Flare
 
+## 1.1.1 - 2024-12-16
+### Fixed
+- Fixed exception when Flare key was not provided
+
+## 1.1.0 - 2024-11-20
+### Added
+- Ability to enable censoring queries
+
 ## 1.0.6 - 2024-11-08
 ### Added
 - Ability to access the Flare instance via `CraftFlare::getFlareInstance()`

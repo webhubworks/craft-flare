@@ -73,7 +73,7 @@ class FlareService extends Component
         });
     }
 
-    public function getClient(): Flare
+    public function getClient(): ?Flare
     {
        return $this->client;
     }
