@@ -52,7 +52,15 @@ class FlareService extends Component
             ->censorRequestBodyFields($settings->censorRequestBodyFields)
             ->reportErrorLevels($settings->reportErrorLevels)
             ->setStage(App::env('CRAFT_ENVIRONMENT'))
-            ->filterExceptionsUsing(fn(Throwable $throwable) => !$throwable instanceof NotFoundHttpException);
+            ->filterExceptionsUsing(function (Throwable $throwable) {
+                if  ($throwable instanceof NotFoundHttpException ||
+                    ($throwable instanceof \Twig\Error\RuntimeError && $throwable->getPrevious() instanceof NotFoundHttpException)
+                ) {
+                    return false;
+                }
+                
+                return true;
+            });
 
         $this->client->context('Craft CMS', [
             'version' => Craft::$app->getVersion(),
