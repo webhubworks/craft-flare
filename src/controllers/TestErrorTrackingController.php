@@ -4,30 +4,31 @@ namespace webhubworks\flare\controllers;
 
 use craft\web\Controller;
 use webhubworks\flare\CraftFlare;
+use webhubworks\flare\exceptions\HandledCraftFlareTestException;
+use webhubworks\flare\exceptions\UnhandledCraftFlareTestException;
 
-class ErrorTriggerController extends Controller
+class TestErrorTrackingController extends Controller
 {
-    protected array|int|bool $allowAnonymous = ['trigger-error'];
-    
-    public function actionTriggerError(): string
+    /**
+     * @throws UnhandledCraftFlareTestException
+     */
+    public function actionThrowTestException(): string
     {
         $type = \Craft::$app->request->getBodyParam('type');
         
         switch ($type) {
             case 'handled':
                 try {
-                    throw new \Exception('This is a handled test exception thrown by the Craft Flare plugin.');
+                    throw new HandledCraftFlareTestException();
                     
-                } catch (\Exception $exception) {
+                } catch (HandledCraftFlareTestException $exception) {
                     CraftFlare::getFlareInstance()->reportHandled($exception);
                     
                     return "The exception has been reported to Flare. 🔥";
                 }
-                break;
             
             case 'unhandled':
-                throw new \Exception('This is an unhandled test exception thrown by the Craft Flare plugin.');
-                break;
+                throw new UnhandledCraftFlareTestException();
             
             default:
                 return "The type '$type' is not supported.";

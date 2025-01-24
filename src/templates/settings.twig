@@ -123,12 +123,12 @@
 
 <script>
     function testErrorTracking() {
-        fireException('handled')
-        fireException('unhandled')
+        throwException('handled')
+        throwException('unhandled')
     }
 
-    function fireException(type) {
-        fetch('{{ actionUrl('craft-flare/error-trigger/trigger-error') }}', {
+    function throwException(type) {
+        fetch('{{ actionUrl('craft-flare/test-error-tracking/throw-test-exception') }}', {
             method: 'POST',
             headers: {
                 'X-CSRF-Token': '{{ csrfToken }}',
