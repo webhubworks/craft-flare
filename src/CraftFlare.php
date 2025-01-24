@@ -58,6 +58,7 @@ class CraftFlare extends Plugin
             'craft-flare/settings',
             [
                 'settings' => $this->getSettings(),
+                'csrfToken' => Craft::$app->getRequest()->getCsrfToken(),
             ]
         );
     }

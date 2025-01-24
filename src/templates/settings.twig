@@ -98,3 +98,31 @@
     errors: settings.getErrors('censorRequestBodyFields'),
     warning: (config.censorRequestBodyFields is defined ? configWarning('censorRequestBodyFields')),
 }) }}
+
+{{ forms.button({
+    label: 'Throw Test Exception',
+    id: 'test-button',
+    attributes: {
+        onclick: 'testErrorTracking()',
+    },
+    busyMessage: 'Triggering an error...',
+    successMessage: 'Done!',
+    failureMessage: 'Fail!',
+}) }}
+
+<script>
+    function testErrorTracking() {
+        fetch('{{ actionUrl('craft-flare/error-trigger/trigger-error') }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-Token': '{{ csrfToken }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                'type': 'unhandled_exception'
+            })
+        }).then(function(response) {
+            console.log(response)
+        })
+    }
+</script>
