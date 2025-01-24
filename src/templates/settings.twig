@@ -42,7 +42,13 @@
 }) }}
 
 <h4>Front-End Error Tracking</h4>
-<p>In case, you would like to also report front-end/JavaScript errors to Flare, please see their <a href="https://flareapp.io/docs/integration/javascript-error-tracking/installation" target="_blank">documentation</a>.</p>
+<p>
+    In case, you would like to also report front-end/JavaScript errors to Flare, please see their
+    <a href="https://flareapp.io/docs/integration/javascript-error-tracking/installation" target="_blank">
+        documentation
+    </a>
+    .
+</p>
 <hr>
 
 {{ forms.lightswitchField({
@@ -99,19 +105,29 @@
     warning: (config.censorRequestBodyFields is defined ? configWarning('censorRequestBodyFields')),
 }) }}
 
+<hr>
+<h4>Test Error Tracking</h4>
+<p>
+    Pressing this button will throw a handled and an unhandled PHP exception in the Back-End.
+    <br>
+    If you configured the plugin correctly, both of these exceptions should appear in Flare.
+</p>
+
 {{ forms.button({
-    label: 'Throw Test Exception',
+    label: 'Throw test exceptions',
     id: 'test-button',
     attributes: {
         onclick: 'testErrorTracking()',
     },
-    busyMessage: 'Triggering an error...',
-    successMessage: 'Done!',
-    failureMessage: 'Fail!',
 }) }}
 
 <script>
     function testErrorTracking() {
+        fireException('handled')
+        fireException('unhandled')
+    }
+
+    function fireException(type) {
         fetch('{{ actionUrl('craft-flare/error-trigger/trigger-error') }}', {
             method: 'POST',
             headers: {
@@ -119,7 +135,7 @@
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                'type': 'unhandled_exception'
+                'type': type
             })
         }).then(function(response) {
             console.log(response)
