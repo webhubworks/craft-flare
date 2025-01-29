@@ -1,5 +1,12 @@
 # Release Notes for Craft Flare
 
+## 1.2.0 - 2025-01-29
+### Added
+- Ability to test error reporting via dedicated buttons on the settings page.
+
+### Changed
+- No longer reporting `{% exit 404 %}` Twig statements, aligning with the existing filtering of `NotFoundHttpException`.
+
 ## 1.1.1 - 2024-12-16
 ### Fixed
 - Fixed exception when Flare key was not provided

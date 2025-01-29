@@ -57,8 +57,5 @@ CraftFlare::getFlareInstance()
    ->report(new \Exception('Test exception'));
 ```
 
-## Test flare
-In order to quickly test whether everything is set up, you can run the following command in your console:
-```bash
-php craft exec/exec "throw new \Exception('This is an exception to test if the integration with Flare works.');"
-```
+## Testing Flare
+In order to quickly test whether everything is set up correctly and if errors are reported to Flare, you can use the buttons in the "Testing Error-Tracking" section on the plugins settings page.
