@@ -106,26 +106,33 @@
 }) }}
 
 <hr>
-<h4>Test Error Tracking</h4>
+<h4>Testing Error-Tracking</h4>
 <p>
-    Pressing this button will throw a handled and an unhandled PHP exception in the Back-End.
+    Pressing the buttons below will throw PHP exceptions in the back-end.
     <br>
-    If you configured the plugin correctly, both of these exceptions should appear in Flare.
+    If you configured the plugin correctly, a HandledCraftFlareTestException and an UnhandledCraftFlareTestException will appear in your Flare App.
 </p>
 
 {{ forms.button({
-    label: 'Throw test exceptions',
-    id: 'test-button',
+    label: 'Throw handled exception',
+    id: 'test-button-handled',
     attributes: {
-        onclick: 'testErrorTracking()',
+        onclick: "throwException('handled')",
     },
 }) }}
 
+{{ forms.button({
+    label: 'Throw unhandled exception',
+    id: 'test-button-unhandled',
+    attributes: {
+        onclick: "throwException('unhandled')",
+    },
+}) }}
+
+<p id="testing-response"></p>
+
 <script>
-    function testErrorTracking() {
-        throwException('handled')
-        throwException('unhandled')
-    }
+    let testingResponse = document.getElementById('settings-testing-response')
 
     function throwException(type) {
         fetch('{{ actionUrl('craft-flare/test-error-tracking/throw-test-exception') }}', {
@@ -135,10 +142,15 @@
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                'type': type
+                'exceptionType': type
             })
-        }).then(function(response) {
-            console.log(response)
+        }).then(async response => {
+            try {
+                let json = await response.json();
+                testingResponse.innerHTML = json.message;
+            } catch (e) {
+                testingResponse.innerHTML = 'The server did not respond in JSON.<br>This could mean that either an UnhandledCraftFlareTestException was thrown as intended or that the plugin was misconfigured and ran into a different problem.'
+            }
         })
     }
 </script>

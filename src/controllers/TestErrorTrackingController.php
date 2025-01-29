@@ -6,15 +6,16 @@ use craft\web\Controller;
 use webhubworks\flare\CraftFlare;
 use webhubworks\flare\exceptions\HandledCraftFlareTestException;
 use webhubworks\flare\exceptions\UnhandledCraftFlareTestException;
+use yii\web\Response;
 
 class TestErrorTrackingController extends Controller
 {
     /**
      * @throws UnhandledCraftFlareTestException
      */
-    public function actionThrowTestException(): string
+    public function actionThrowTestException(): Response
     {
-        $type = \Craft::$app->request->getBodyParam('type');
+        $type = $this->request->getBodyParam('exceptionType');
         
         switch ($type) {
             case 'handled':
@@ -24,14 +25,18 @@ class TestErrorTrackingController extends Controller
                 } catch (HandledCraftFlareTestException $exception) {
                     CraftFlare::getFlareInstance()->reportHandled($exception);
                     
-                    return "The exception has been reported to Flare. 🔥";
+                    return $this->asJson([
+                        'message' => 'The exception was handled and reported to Flare.'
+                    ])->setStatusCode(200);
                 }
             
             case 'unhandled':
                 throw new UnhandledCraftFlareTestException();
             
             default:
-                return "The type '$type' is not supported.";
+                return $this->asJson([
+                    'message' => "The exception type '$type' is not supported by the testing feature."
+                ])->setStatusCode(400);
         }
     }
 }
