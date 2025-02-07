@@ -1,5 +1,9 @@
 # Release Notes for Craft Flare
 
+## 1.2.1 - 2025-02-07
+### Changed
+- Now also filtering out `ForbiddenHttpException` and `{% exit 403 %}` Twig statements.
+
 ## 1.2.0 - 2025-01-29
 ### Added
 - Ability to test error reporting via dedicated buttons on the settings page.

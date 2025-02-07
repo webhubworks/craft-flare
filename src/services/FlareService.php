@@ -12,6 +12,7 @@ use Throwable;
 use webhubworks\flare\CraftFlare;
 use webhubworks\flare\middleware\CensorQueriesMiddleware;
 use webhubworks\flare\middleware\RemoveAllRequestIp;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 
 class FlareService extends Component
@@ -53,8 +54,14 @@ class FlareService extends Component
             ->reportErrorLevels($settings->reportErrorLevels)
             ->setStage(App::env('CRAFT_ENVIRONMENT'))
             ->filterExceptionsUsing(function (Throwable $throwable) {
-                if  ($throwable instanceof NotFoundHttpException ||
-                    ($throwable instanceof \Twig\Error\RuntimeError && $throwable->getPrevious() instanceof NotFoundHttpException)
+                if  (
+                    $throwable instanceof NotFoundHttpException ||
+                    $throwable instanceof ForbiddenHttpException || (
+                        $throwable instanceof \Twig\Error\RuntimeError && (
+                            $throwable->getPrevious() instanceof NotFoundHttpException ||
+                            $throwable->getPrevious() instanceof ForbiddenHttpException
+                        )
+                    )
                 ) {
                     return false;
                 }
