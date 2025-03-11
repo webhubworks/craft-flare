@@ -41,6 +41,9 @@ class CraftFlare extends Plugin
             'flare' => FlareService::class,
         ]);
 
+        /**
+         * Handle "normal" exceptions.
+         */
         Event::on(
             ErrorHandler::class,
             ErrorHandler::EVENT_BEFORE_HANDLE_EXCEPTION,
@@ -48,6 +51,27 @@ class CraftFlare extends Plugin
                 $this->flare->getClient()?->report($event->exception);
             }
         );
+
+        /**
+         * Handle fatal errors.
+         */
+        register_shutdown_function(function () {
+            $error = error_get_last();
+
+            /**
+             * We check, whether the error code is in our setting reportErrorLevels to be reported.
+             */
+            if ($error && (bool) ($this->getSettings()->reportErrorLevels & $error['type'])) {
+                $throwable = match($error['type']) {
+                    E_COMPILE_ERROR => new \TypeError($error['message']),
+                    E_PARSE => new \ParseError($error['message']),
+                    E_WARNING, E_NOTICE, E_USER_WARNING, E_USER_NOTICE => new \RuntimeException($error['message']),
+                    default => new \Exception($error['message']),
+                };
+
+                $this->flare->getClient()?->sendReportsImmediately()->report($throwable);
+            }
+        });
 
         $this->registerOtherEvents();
     }
