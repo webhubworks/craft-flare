@@ -62,12 +62,13 @@ class CraftFlare extends Plugin
              * We check, whether the error code is in our setting reportErrorLevels to be reported.
              */
             if ($error && (bool) ($this->getSettings()->reportErrorLevels & $error['type'])) {
-                $throwable = match($error['type']) {
-                    E_COMPILE_ERROR => new \TypeError($error['message']),
-                    E_PARSE => new \ParseError($error['message']),
-                    E_WARNING, E_NOTICE, E_USER_WARNING, E_USER_NOTICE => new \RuntimeException($error['message']),
-                    default => new \Exception($error['message']),
-                };
+                $throwable = new \ErrorException(
+                    $error['message'],
+                    0,
+                    $error['type'],
+                    $error['file'],
+                    $error['line']
+                );
 
                 $this->flare->getClient()?->sendReportsImmediately()->report($throwable);
             }
