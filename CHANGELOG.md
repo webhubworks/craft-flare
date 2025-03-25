@@ -1,5 +1,13 @@
 # Release Notes for Craft Flare
 
+## 1.3.1 - 2025-03-11
+### Changed
+- Improved reporting of fatal PHP errors.
+
+## 1.3.0 - 2025-03-11
+### Added
+- Now also reporting fatal PHP errors.
+
 ## 1.2.1 - 2025-02-07
 ### Changed
 - Now also filtering out `ForbiddenHttpException` and `{% exit 403 %}` Twig statements.
