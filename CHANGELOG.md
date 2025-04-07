@@ -1,5 +1,9 @@
 # Release Notes for Craft Flare
 
+## 1.3.2 - 2025-04-07
+### Added
+- Added queue handling exceptions.
+
 ## 1.3.1 - 2025-03-11
 ### Changed
 - Improved reporting of fatal PHP errors.

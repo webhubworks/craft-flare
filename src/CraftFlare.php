@@ -10,10 +10,13 @@ use craft\events\RegisterUrlRulesEvent;
 use craft\services\Plugins;
 use craft\web\ErrorHandler;
 use craft\web\UrlManager;
+use ErrorException;
 use Spatie\FlareClient\Flare;
 use webhubworks\flare\models\Settings;
 use webhubworks\flare\services\FlareService;
 use yii\base\Event;
+use yii\queue\ExecEvent;
+use yii\queue\Queue;
 
 /**
  * Craft Flare plugin
@@ -53,6 +56,25 @@ class CraftFlare extends Plugin
         );
 
         /**
+         * Handle queue exceptions.
+         */
+        Event::on(
+            Queue::class,
+            Queue::EVENT_AFTER_ERROR,
+            function (ExecEvent $event) {
+                $throwable = new ErrorException(
+                    $event->error->getMessage(),
+                    $event->error->getCode(),
+                    1,
+                    $event->error->getFile(),
+                    $event->error->getLine()
+                );
+
+                $this->flare->getClient()?->report($throwable);
+            }
+        );
+
+        /**
          * Handle fatal errors.
          */
         register_shutdown_function(function () {
@@ -62,7 +84,7 @@ class CraftFlare extends Plugin
              * We check, whether the error code is in our setting reportErrorLevels to be reported.
              */
             if ($error && (bool) ($this->getSettings()->reportErrorLevels & $error['type'])) {
-                $throwable = new \ErrorException(
+                $throwable = new ErrorException(
                     $error['message'],
                     0,
                     $error['type'],
