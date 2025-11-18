@@ -62,9 +62,10 @@ class CraftFlare extends Plugin
             Queue::class,
             Queue::EVENT_AFTER_ERROR,
             function (ExecEvent $event) {
+                $errorCode = $event->error->getCode();
                 $throwable = new ErrorException(
                     $event->error->getMessage(),
-                    $event->error->getCode(),
+                    is_numeric($errorCode) ? (int) $errorCode : 0,
                     1,
                     $event->error->getFile(),
                     $event->error->getLine()
