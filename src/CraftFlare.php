@@ -12,6 +12,7 @@ use craft\web\ErrorHandler;
 use craft\web\UrlManager;
 use ErrorException;
 use Spatie\FlareClient\Flare;
+use Throwable;
 use webhubworks\flare\models\Settings;
 use webhubworks\flare\services\FlareService;
 use yii\base\Event;
@@ -51,7 +52,11 @@ class CraftFlare extends Plugin
             ErrorHandler::class,
             ErrorHandler::EVENT_BEFORE_HANDLE_EXCEPTION,
             function (ExceptionEvent $event) {
-                $this->flare->getClient()?->report($event->exception);
+                try {
+                    $this->flare->getClient()?->report($event->exception);
+                } catch (Throwable $e) {
+                    Craft::warning('Flare failed to report exception: ' . $e->getMessage(), __METHOD__);
+                }
             }
         );
 
@@ -71,7 +76,11 @@ class CraftFlare extends Plugin
                     $event->error->getLine()
                 );
 
-                $this->flare->getClient()?->report($throwable);
+                try {
+                    $this->flare->getClient()?->report($throwable);
+                } catch (Throwable $e) {
+                    Craft::warning('Flare failed to report queue exception: ' . $e->getMessage(), __METHOD__);
+                }
             }
         );
 
@@ -93,7 +102,11 @@ class CraftFlare extends Plugin
                     $error['line']
                 );
 
-                $this->flare->getClient()?->sendReportsImmediately()->report($throwable);
+                try {
+                    $this->flare->getClient()?->sendReportsImmediately()->report($throwable);
+                } catch (Throwable $e) {
+                    // Silently ignore - we're in a shutdown function, logging may not work
+                }
             }
         });
 

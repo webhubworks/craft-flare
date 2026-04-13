@@ -8,10 +8,9 @@ use craft\base\Plugin;
 use craft\helpers\App;
 use craft\models\UserGroup;
 use Spatie\FlareClient\Flare;
+use Spatie\FlareClient\FlareConfig;
 use Throwable;
 use webhubworks\flare\CraftFlare;
-use webhubworks\flare\middleware\CensorQueriesMiddleware;
-use webhubworks\flare\middleware\RemoveAllRequestIp;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 
@@ -25,7 +24,7 @@ class FlareService extends Component
     public function __construct()
     {
         parent::__construct();
-        
+
         $settings = CraftFlare::getInstance()->getSettings();
 
         if ($settings->isEnabled !== true) {
@@ -38,23 +37,12 @@ class FlareService extends Component
             return;
         }
 
-        $this->client = Flare::make($flareApiToken)->registerFlareHandlers();
-
-        if ($settings->anonymizeIp) {
-            $this->client->anonymizeIp();
-            $this->client->registerMiddleware(RemoveAllRequestIp::class);
-        }
-
-        if ($settings->censorQueries) {
-            $this->client->registerMiddleware(CensorQueriesMiddleware::class);
-        }
-
-        $this->client
-            ->censorRequestBodyFields($settings->censorRequestBodyFields)
+        $config = FlareConfig::make($flareApiToken)
             ->reportErrorLevels($settings->reportErrorLevels)
-            ->setStage(App::env('CRAFT_ENVIRONMENT'))
+            ->applicationStage(App::env('CRAFT_ENVIRONMENT'))
+            ->censorBodyFields(...$settings->censorRequestBodyFields)
             ->filterExceptionsUsing(function (Throwable $throwable) {
-                if  (
+                if (
                     $throwable instanceof NotFoundHttpException ||
                     $throwable instanceof ForbiddenHttpException || (
                         $throwable instanceof \Twig\Error\RuntimeError && (
@@ -65,22 +53,44 @@ class FlareService extends Component
                 ) {
                     return false;
                 }
-                
+
                 return true;
             });
 
-        $this->client->context('Craft CMS', [
+        if ($settings->anonymizeIp) {
+            $config->censorClientIps();
+            $config->censorHeaders(
+                'x-forwarded-for',
+                'x-real-ip',
+                'x-request-ip',
+                'x-client-ip',
+                'cf-connecting-ip',
+                'fastly-client-ip',
+                'true-client-ip',
+                'forwarded',
+                'proxy-client-ip',
+                'wl-proxy-client-ip',
+            );
+        }
+
+        if ($settings->censorQueries) {
+            $config->collectQueries(includeBindings: false);
+        }
+
+        $this->client = Flare::make($config)->registerFlareHandlers();
+
+        $this->client->context('craft_cms', [
             'version' => Craft::$app->getVersion(),
             'edition' => Craft::$app->getEdition(),
-            'isMultiSite' => Craft::$app->getIsMultiSite(),
-            'isCpRequest' => Craft::$app->getRequest()->getIsCpRequest(),
-            'isSiteRequest' => Craft::$app->getRequest()->getIsSiteRequest(),
-            'isLivePreview' => Craft::$app->getRequest()->getIsLivePreview(),
-            'isActionRequest' => Craft::$app->getRequest()->getIsActionRequest(),
-            'isSecureConnection' => !Craft::$app->getRequest()->getIsConsoleRequest() && Craft::$app->getRequest()->getIsSecureConnection(),
+            'is_multi_site' => Craft::$app->getIsMultiSite(),
+            'is_cp_request' => Craft::$app->getRequest()->getIsCpRequest(),
+            'is_site_request' => Craft::$app->getRequest()->getIsSiteRequest(),
+            'is_live_preview' => Craft::$app->getRequest()->getIsLivePreview(),
+            'is_action_request' => Craft::$app->getRequest()->getIsActionRequest(),
+            'is_secure_connection' => !Craft::$app->getRequest()->getIsConsoleRequest() && Craft::$app->getRequest()->getIsSecureConnection(),
         ]);
 
-        $this->client->context('User', 'Craft not initialized yet');
+        $this->client->context('user', 'Craft not initialized yet');
 
         Craft::$app->onInit(function () {
             $this->addPluginContext();
@@ -99,7 +109,7 @@ class FlareService extends Component
             return;
         }
 
-        $this->client->context('Plugins', [
+        $this->client->context('plugins', [
             'enabled' => array_map(fn(Plugin $plugin) => $plugin->handle, Craft::$app->getPlugins()->getAllPlugins()),
         ]);
     }
@@ -118,20 +128,20 @@ class FlareService extends Component
         }
 
         if (Craft::$app->getRequest()->getIsConsoleRequest()) {
-            $this->client->context('User', 'Console');
+            $this->client->context('user', 'Console');
             return;
         }
 
         $user = Craft::$app->getUser()->getIdentity();
 
         if (is_null($user)) {
-            $this->client->context('User', 'Guest');
+            $this->client->context('user', 'Guest');
         }
 
         if ($user) {
             $groups = array_map(fn(UserGroup $group) => $group->name, $user->getGroups());
 
-            $this->client->context('User', [
+            $this->client->context('user', [
                 'id' => $user->id,
                 'groups' => $groups,
                 'is_admin' => $user->admin,

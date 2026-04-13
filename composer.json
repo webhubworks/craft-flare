@@ -16,9 +16,9 @@
         "rss": "https://github.com/webhubworks/craft-flare/releases.atom"
     },
     "require": {
-        "php": ">=8.0.2",
-        "craftcms/cms": "^4.5.0|^5.0.0",
-        "spatie/flare-client-php": "1.8.0"
+        "php": ">=8.2",
+        "craftcms/cms": "^5.0.0",
+        "spatie/flare-client-php": "^2.10"
     },
     "require-dev": {
         "craftcms/ecs": "dev-main",
@@ -45,7 +45,7 @@
     "config": {
         "sort-packages": true,
         "platform": {
-            "php": "8.0.2"
+            "php": "8.2"
         },
         "allow-plugins": {
             "yiisoft/yii2-composer": true,
