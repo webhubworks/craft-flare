@@ -1,5 +1,13 @@
 # Release Notes for Craft Flare
 
+## 2.0.0 - 2026-04-13
+### Changed
+- Upgraded to `spatie/flare-client-php` v2.
+
+## 1.3.3 - 2025-11-18
+### Fixed
+- Ensures error code is an integer.
+
 ## 1.3.2 - 2025-04-07
 ### Added
 - Added queue handling exceptions.
