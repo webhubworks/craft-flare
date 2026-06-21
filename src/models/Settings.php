@@ -29,6 +29,25 @@ class Settings extends Model
     ];
 
     /**
+     * HTTP status codes of exceptions that should NOT be reported to Flare.
+     *
+     * Any thrown `yii\web\HttpException` (or a `Twig\Error\RuntimeError` wrapping one,
+     * e.g. `{% exit 403 %}`) whose status code is listed here is filtered out. Matching
+     * happens on the status code rather than the exception class, so generic
+     * `HttpException(403)` / `HttpException(404)` throws from third-party code
+     * (e.g. verbb/wishlist) are caught too, not just `ForbiddenHttpException` /
+     * `NotFoundHttpException`.
+     *
+     * Defaults to client errors that are expected during normal operation (bots,
+     * crawlers, link scanners, expired sessions). Add codes like 400, 401, 405 or 429
+     * if a project wants to silence those as well - but be aware that doing so also
+     * hides genuine signals (e.g. CSRF failures are 400, rate limiting is 429).
+     *
+     * @var int[]
+     */
+    public array $ignoredHttpStatusCodes = [403, 404];
+
+    /**
      * Will send all errors except E_NOTICE, E_DEPRECATED, E_USER_DEPRECATED and E_WARNING errors
      * -> Results into "reportErrorLevels: 8181"
      *
@@ -49,6 +68,7 @@ class Settings extends Model
             ['isEnabled', 'boolean'],
             ['isEnabled', 'boolean'],
             ['censorRequestBodyFields', 'safe'],
+            ['ignoredHttpStatusCodes', 'safe'],
         ];
     }
 

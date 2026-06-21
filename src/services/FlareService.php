@@ -11,8 +11,7 @@ use Spatie\FlareClient\Flare;
 use Spatie\FlareClient\FlareConfig;
 use Throwable;
 use webhubworks\flare\CraftFlare;
-use yii\web\ForbiddenHttpException;
-use yii\web\NotFoundHttpException;
+use yii\web\HttpException;
 
 class FlareService extends Component
 {
@@ -37,20 +36,25 @@ class FlareService extends Component
             return;
         }
 
+        $ignoredHttpStatusCodes = $settings->ignoredHttpStatusCodes;
+
         $config = FlareConfig::make($flareApiToken)
             ->reportErrorLevels($settings->reportErrorLevels)
             ->applicationStage(App::env('CRAFT_ENVIRONMENT'))
             ->censorBodyFields(...$settings->censorRequestBodyFields)
-            ->filterExceptionsUsing(function (Throwable $throwable) {
-                if (
-                    $throwable instanceof NotFoundHttpException ||
-                    $throwable instanceof ForbiddenHttpException || (
-                        $throwable instanceof \Twig\Error\RuntimeError && (
-                            $throwable->getPrevious() instanceof NotFoundHttpException ||
-                            $throwable->getPrevious() instanceof ForbiddenHttpException
-                        )
-                    )
-                ) {
+            ->filterExceptionsUsing(function (Throwable $throwable) use ($ignoredHttpStatusCodes) {
+                // Unwrap Twig runtime errors that merely re-wrap an HTTP exception
+                // (e.g. `{% exit 403 %}`) so we can inspect the underlying status code.
+                $exception = $throwable instanceof \Twig\Error\RuntimeError
+                    ? $throwable->getPrevious()
+                    : $throwable;
+
+                // Filter out HTTP exceptions whose status code is configured as ignored.
+                // Matching on the status code (rather than the exception class) also catches
+                // generic `HttpException(403|404|...)` throws from third-party code - e.g.
+                // verbb/wishlist throws a plain `HttpException(403)`, not `ForbiddenHttpException`.
+                if ($exception instanceof HttpException
+                    && in_array($exception->statusCode, $ignoredHttpStatusCodes, true)) {
                     return false;
                 }
 
