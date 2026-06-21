@@ -1,5 +1,12 @@
 # Release Notes for Craft Flare
 
+## 1.3.4 - 2026-06-21
+### Added
+- Added the `ignoredHttpStatusCodes` setting (defaults to `[403, 404]`) to configure which HTTP status codes are filtered out before reporting.
+
+### Changed
+- HTTP exceptions are now filtered by status code instead of exception class, so generic `HttpException(403|404)` throws from third-party code (e.g. verbb/wishlist) are filtered too, not just `ForbiddenHttpException` / `NotFoundHttpException`.
+
 ## 1.3.2 - 2025-04-07
 ### Added
 - Added queue handling exceptions.

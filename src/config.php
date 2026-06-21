@@ -50,5 +50,12 @@ return [
         //    'name',
         //    'username'
         //],
+
+        // HTTP status codes of exceptions that should NOT be reported to Flare. Matching happens on
+        // the status code rather than the exception class, so generic HttpException(403|404|...) throws
+        // from third-party code are filtered too, not just ForbiddenHttpException / NotFoundHttpException.
+        // Defaults to [403, 404]. Add e.g. 400, 401, 405 or 429 to also silence those - but note this
+        // hides genuine signals too (CSRF failures are 400, rate limiting is 429).
+        //'ignoredHttpStatusCodes' => [403, 404],
     ],
 ];
