@@ -1,5 +1,20 @@
 # Release Notes for Craft Flare
 
+## 2.0.2 - 2026-09-02
+### Fixed
+- Request context (URL, method, headers and body) reaches Flare again. `Flare::make()` only applies the client defaults when it is given an API token string, so passing a `FlareConfig` left every collector unregistered ([#2](https://github.com/webhubworks/craft-flare/issues/2)).
+- Set the application path, so Git information is collected and stack frames are trimmed to the project.
+
+### Added
+- Added the `censorCookies` setting (defaults to `true`). Flare censors the `Cookie` header but reads the parsed cookies separately, so Craft's session ID and identity cookie were sent in the clear.
+- Added `loginName` to the default `censorRequestBodyFields`. Craft's login form posts `loginName`, not `username`.
+- Censored field names are matched up to two levels deep, so `email` now covers `fields[email]` as well. Use an explicit dot path for anything nested deeper.
+- Credential fields (`CRAFT_CSRF_TOKEN`, `password`, `newPassword`, `currentPassword`, `account-password`, `loginName`) are censored whatever `censorRequestBodyFields` is set to, so projects that stored the setting before a field was added still do not post credentials.
+
+### Changed
+- Dump collection stays off. The recorder swaps the global `VarDumper` handler, and this plugin builds the client while an exception is already being handled, so it can never record a dump.
+- Stack frame argument collection stays off. It sets `zend.exception_ignore_args` to 0 process-wide, and on a production ini the exception is created before the client boots, so the trace carries no arguments either way.
+
 ## 2.0.1 - 2026-06-21
 ### Added
 - Added the `ignoredHttpStatusCodes` setting (defaults to `[403, 404]`) to configure which HTTP status codes are filtered out before reporting.

@@ -15,6 +15,31 @@ use yii\web\HttpException;
 
 class FlareService extends Component
 {
+    /**
+     * How many levels of nesting the censored body fields are expanded to.
+     *
+     * Craft posts custom field data as `fields[handle]`, so a bare field name never matches.
+     * Each extra level multiplies the work the redactor does on a large request body, so the
+     * expansion stops at the depth that covers Craft's own field naming.
+     */
+    private const CENSOR_FIELD_DEPTH = 2;
+
+    /**
+     * Credential fields that are censored whatever the `censorRequestBodyFields` setting says.
+     *
+     * The client already forces `password` and `password_confirmation` on top of the configured
+     * list. These are the Craft equivalents, so a project that installed the plugin before a
+     * field was added to the defaults still does not post credentials to Flare.
+     */
+    private const ALWAYS_CENSORED_BODY_FIELDS = [
+        'CRAFT_CSRF_TOKEN',
+        'password',
+        'newPassword',
+        'currentPassword',
+        'account-password',
+        'loginName',
+    ];
+
     private ?Flare $client = null;
 
     /**
@@ -39,9 +64,25 @@ class FlareService extends Component
         $ignoredHttpStatusCodes = $settings->ignoredHttpStatusCodes;
 
         $config = FlareConfig::make($flareApiToken)
+            // `Flare::make()` only applies the client defaults when it is handed an API token
+            // string. Passing a `FlareConfig` skips them, which leaves `$collects` empty and
+            // drops every collector, including the request information middleware.
+            ->useDefaults()
+            // The dump recorder swaps the global `VarDumper` handler. This service is resolved
+            // lazily while an exception is already being handled, so the swap happens after any
+            // dump it could have recorded.
+            ->ignoreDumps()
+            // Collecting stack frame arguments sets `zend.exception_ignore_args` to 0 for the
+            // whole process. On a production ini the exception has already been created by then,
+            // so its trace carries no arguments either way, and arguments can hold credentials.
+            ->ignoreStackFrameArguments()
+            // Without an application path the client cannot find the repository, so no Git
+            // information is collected and stack frames are not trimmed to the project.
+            ->applicationPath($this->applicationPath())
             ->reportErrorLevels($settings->reportErrorLevels)
             ->applicationStage(App::env('CRAFT_ENVIRONMENT'))
-            ->censorBodyFields(...$settings->censorRequestBodyFields)
+            ->censorCookies($settings->censorCookies)
+            ->censorBodyFields(...$this->censoredBodyFieldPaths($settings->censorRequestBodyFields))
             ->filterExceptionsUsing(function(Throwable $throwable) use ($ignoredHttpStatusCodes) {
                 // Unwrap Twig runtime errors that merely re-wrap an HTTP exception
                 // (e.g. `{% exit 403 %}`) so we can inspect the underlying status code.
@@ -100,6 +141,40 @@ class FlareService extends Component
             $this->addPluginContext();
             $this->addUserContext();
         });
+    }
+
+    private function applicationPath(): string
+    {
+        $root = Craft::getAlias('@root', false);
+
+        return is_string($root) ? $root : dirname(Craft::getAlias('@webroot'));
+    }
+
+    /**
+     * Expands each configured field name into the nested paths Craft actually posts under.
+     *
+     * The client matches censored body fields as dot paths from the root of the request body,
+     * but Craft submits custom field data as `fields[handle]`, so a bare `email` never matches
+     * `fields[email]`. Anything nested deeper than `CENSOR_FIELD_DEPTH`, such as Matrix block
+     * content, needs an explicit dot path in the setting.
+     *
+     * @param string[] $fields
+     * @return string[]
+     */
+    private function censoredBodyFieldPaths(array $fields): array
+    {
+        $paths = [];
+
+        foreach (array_unique([...self::ALWAYS_CENSORED_BODY_FIELDS, ...$fields]) as $field) {
+            $prefix = '';
+
+            for ($depth = 0; $depth <= self::CENSOR_FIELD_DEPTH; $depth++) {
+                $paths[] = $prefix . $field;
+                $prefix .= '*.';
+            }
+        }
+
+        return $paths;
     }
 
     public function getClient(): ?Flare

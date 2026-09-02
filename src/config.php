@@ -36,7 +36,14 @@ return [
         // With this setting enabled, only SQL exceptions messages will be reported but no queries.
         //'censorQueries' => true,
 
-        // With this setting you may define which request fields should be censored before being sent to Flare.
+        // With this setting enabled, cookies are removed from reports. Craft's session ID and
+        // identity cookie would otherwise be sent to Flare in the clear.
+        //'censorCookies' => true,
+
+        // With this setting you may define which request fields should be censored before being sent
+        // to Flare. Each name is also matched up to two levels deep, so 'email' covers both 'email'
+        // and 'fields[email]'. Use an explicit dot path such as 'fields.matrix.block.email' for
+        // anything nested deeper.
         //'censorRequestBodyFields' => [
         //    'CRAFT_CSRF_TOKEN',
         //    'password',
@@ -48,7 +55,8 @@ return [
         //    'lastName',
         //    'fullName',
         //    'name',
-        //    'username'
+        //    'username',
+        //    'loginName',
         //],
 
         // HTTP status codes of exceptions that should NOT be reported to Flare. Matching happens on

@@ -14,6 +14,15 @@ class Settings extends Model
 
     public bool $censorQueries = true;
 
+    /**
+     * Removes cookies from reports before they are sent to Flare.
+     *
+     * Flare censors the `Cookie` header by default, but reads the parsed cookies separately, so
+     * without this Craft's session ID and identity cookie are sent in the clear. The identity
+     * cookie carries the auth key behind "Keep me logged in".
+     */
+    public bool $censorCookies = true;
+
     public array $censorRequestBodyFields = [
         'CRAFT_CSRF_TOKEN',
         'password',
@@ -26,6 +35,7 @@ class Settings extends Model
         'fullName',
         'name',
         'username',
+        'loginName',
     ];
 
     /**
@@ -65,6 +75,7 @@ class Settings extends Model
     {
         return [
             [['flareKey', 'isEnabled', 'anonymizeIp', 'censorQueries', 'censorRequestBodyFields'], 'required'],
+            ['censorCookies', 'boolean'],
             ['isEnabled', 'boolean'],
             ['isEnabled', 'boolean'],
             ['censorRequestBodyFields', 'safe'],

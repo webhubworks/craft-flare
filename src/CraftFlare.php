@@ -22,7 +22,8 @@ use yii\queue\Queue;
 /**
  * Craft Flare plugin
  *
- * @method static CraftFlare getInstance()
+ * @method static CraftFlare|null getInstance()
+ * @method Settings getSettings()
  * @property FlareService $flare
  * @author webhub GmbH
  * @copyright webhub GmbH
@@ -130,12 +131,12 @@ class CraftFlare extends Plugin
             Plugins::class,
             Plugins::EVENT_BEFORE_SAVE_PLUGIN_SETTINGS,
             function(PluginEvent $event) {
-                if ($event->plugin->id !== 'craft-flare') {
+                if (!$event->plugin instanceof self) {
                     return;
                 }
 
                 $settings = $event->plugin->getSettings();
-                $settings->censorRequestBodyFields = $settings->setCensorRequestBodyFields($event->plugin->getSettings()->censorRequestBodyFields);
+                $settings->censorRequestBodyFields = $settings->setCensorRequestBodyFields($settings->censorRequestBodyFields);
             }
         );
 

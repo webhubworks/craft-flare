@@ -63,6 +63,17 @@
 }) }}
 
 {{ forms.lightswitchField({
+    label: "Censor Cookies"|t('craft-flare'),
+    id: 'censor-cookies',
+    name: 'censorCookies',
+    on: settings['censorCookies'],
+    instructions: "With this setting enabled, cookies are removed from reports. Craft's session ID and identity cookie would otherwise be sent to Flare in the clear."|t('craft-flare'),
+    errors: settings.getErrors('censorCookies'),
+    warning: (config.censorCookies is defined ? configWarning('censorCookies')),
+    disabled: config.censorCookies is defined,
+}) }}
+
+{{ forms.lightswitchField({
     label: "Censor Queries"|t('craft-flare'),
     id: 'censor-queries',
     name: 'censorQueries',
@@ -89,7 +100,7 @@
     label: "Fields to censor"|t("craft-flare"),
     id: "censorRequestBodyFields",
     name: "censorRequestBodyFields",
-    instructions: "Set which request fields should be censored before sending them to Flare."|t("craft-flare"),
+    instructions: "Set which request fields should be censored before sending them to Flare. Each name is also matched up to two levels deep, so \"email\" covers both \"email\" and \"fields[email]\"."|t("craft-flare"),
     allowAdd: true,
     allowDelete: true,
     static: config.censorRequestBodyFields is defined,
