@@ -21,12 +21,11 @@ class TestErrorTrackingController extends Controller
             case 'handled':
                 try {
                     throw new HandledCraftFlareTestException();
-                    
                 } catch (HandledCraftFlareTestException $exception) {
                     CraftFlare::getFlareInstance()->reportHandled($exception);
                     
                     return $this->asJson([
-                        'message' => 'The exception was handled and reported to Flare.'
+                        'message' => 'The exception was handled and reported to Flare.',
                     ])->setStatusCode(200);
                 }
             
@@ -35,7 +34,7 @@ class TestErrorTrackingController extends Controller
             
             default:
                 return $this->asJson([
-                    'message' => "The exception type '$type' is not supported by the testing feature."
+                    'message' => "The exception type '$type' is not supported by the testing feature.",
                 ])->setStatusCode(400);
         }
     }

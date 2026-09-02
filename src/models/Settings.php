@@ -25,7 +25,7 @@ class Settings extends Model
         'lastName',
         'fullName',
         'name',
-        'username'
+        'username',
     ];
 
     /**
@@ -74,14 +74,14 @@ class Settings extends Model
 
     public function getCensorRequestBodyFields($value)
     {
-        return array_map(function ($field) {
+        return array_map(function($field) {
             return ['fieldName' => $field];
         }, $value);
     }
 
     public function setCensorRequestBodyFields($value)
     {
-        return array_map(function ($field) {
+        return array_map(function($field) {
             return $field['fieldName'];
         }, $value);
     }

@@ -51,7 +51,7 @@ class CraftFlare extends Plugin
         Event::on(
             ErrorHandler::class,
             ErrorHandler::EVENT_BEFORE_HANDLE_EXCEPTION,
-            function (ExceptionEvent $event) {
+            function(ExceptionEvent $event) {
                 try {
                     $this->flare->getClient()?->report($event->exception);
                 } catch (Throwable $e) {
@@ -66,7 +66,7 @@ class CraftFlare extends Plugin
         Event::on(
             Queue::class,
             Queue::EVENT_AFTER_ERROR,
-            function (ExecEvent $event) {
+            function(ExecEvent $event) {
                 $errorCode = $event->error->getCode();
                 $throwable = new ErrorException(
                     $event->error->getMessage(),
@@ -87,7 +87,7 @@ class CraftFlare extends Plugin
         /**
          * Handle fatal errors.
          */
-        register_shutdown_function(function () {
+        register_shutdown_function(function() {
             $error = error_get_last();
 
             /**
@@ -129,7 +129,7 @@ class CraftFlare extends Plugin
         Event::on(
             Plugins::class,
             Plugins::EVENT_BEFORE_SAVE_PLUGIN_SETTINGS,
-            function (PluginEvent $event) {
+            function(PluginEvent $event) {
                 if ($event->plugin->id !== 'craft-flare') {
                     return;
                 }
@@ -142,7 +142,7 @@ class CraftFlare extends Plugin
         Event::on(
             UrlManager::class,
             UrlManager::EVENT_REGISTER_SITE_URL_RULES,
-            function (RegisterUrlRulesEvent $event) {
+            function(RegisterUrlRulesEvent $event) {
                 $event->rules['craft-flare/errors/trigger-error'] = 'craft-flare/error-trigger/trigger-error';
             }
         );
@@ -150,7 +150,7 @@ class CraftFlare extends Plugin
 
     public static function getFlareInstance(): ?Flare
     {
-        if(self::getInstance() === null){
+        if (self::getInstance() === null) {
             return null;
         }
 

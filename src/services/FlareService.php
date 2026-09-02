@@ -42,7 +42,7 @@ class FlareService extends Component
             ->reportErrorLevels($settings->reportErrorLevels)
             ->applicationStage(App::env('CRAFT_ENVIRONMENT'))
             ->censorBodyFields(...$settings->censorRequestBodyFields)
-            ->filterExceptionsUsing(function (Throwable $throwable) use ($ignoredHttpStatusCodes) {
+            ->filterExceptionsUsing(function(Throwable $throwable) use ($ignoredHttpStatusCodes) {
                 // Unwrap Twig runtime errors that merely re-wrap an HTTP exception
                 // (e.g. `{% exit 403 %}`) so we can inspect the underlying status code.
                 $exception = $throwable instanceof \Twig\Error\RuntimeError
@@ -96,7 +96,7 @@ class FlareService extends Component
 
         $this->client->context('user', 'Craft not initialized yet');
 
-        Craft::$app->onInit(function () {
+        Craft::$app->onInit(function() {
             $this->addPluginContext();
             $this->addUserContext();
         });
@@ -104,12 +104,12 @@ class FlareService extends Component
 
     public function getClient(): ?Flare
     {
-       return $this->client;
+        return $this->client;
     }
 
     private function addPluginContext(): void
     {
-        if($this->client === null) {
+        if ($this->client === null) {
             return;
         }
 
@@ -127,7 +127,7 @@ class FlareService extends Component
      */
     private function addUserContext(): void
     {
-        if($this->client === null) {
+        if ($this->client === null) {
             return;
         }
 
